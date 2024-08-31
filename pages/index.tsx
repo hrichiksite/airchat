@@ -1,32 +1,47 @@
 import Image from "next/image";
 import { Inter } from "next/font/google";
+import { useState, useMemo } from "react";
+import { send } from "process";
 
 const inter = Inter({ subsets: ["latin"] });
 // taken help from ai
 export default function Home() {
   // message array
-  const messages = [
-    {
-      id: 1,
-      message: "Hello",
-      sender: "user",
-    },
-    {
-      id: 2,
-      message: "Hi",
-      sender: "bot",
-    },
-    {
-      id: 3,
-      message: "How are you?",
-      sender: "user",
-    },
-    {
-      id: 4,
-      message: "I am fine",
-      sender: "bot",
-    },
-  ];
+  const [messages, setMessages] = useState([{}]);
+      //get chat
+  useMemo(() => {
+    fetch("/api/fetch")
+      .then((res) => res.json())
+      .then((data) => {
+        setMessages(data);
+      });
+  }, [messages]);
+
+  //send message
+  const sendMessage = (message: any) => {
+    fetch("/api/send", {
+      method: "POST",
+      body: JSON.stringify({
+        token: localStorage.getItem("token"),
+        message,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+      });
+  };
+
+  // get name
+  useMemo(() => {
+    fetch("/api/hello")
+      .then((res) => res.json())
+      .then((data) => {
+        localStorage.setItem("token", data.token);
+      });
+  }, []);
+  
+
   return( 
     <>   
 <div className="flex flex-col h-screen bg-gradient-to-br from-purple-400 to-blue-500"> 
@@ -43,6 +58,7 @@ export default function Home() {
     {/* Messages */} 
     {/* iter over message array */}
     {messages.map((message) => (
+      //@ts-ignore
       <div key={message.id} className="mb-4"> 
       <p className={`text-${message.sender === "user" ? "blue-700" : "green-600"}`}>
         <strong>{message.sender === "user" ? "User:" : "Admin:"}</strong> {message.message}

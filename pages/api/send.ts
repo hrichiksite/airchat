@@ -2,10 +2,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { generateSlug } from "random-word-slugs";
 import jsonwebtoken from "jsonwebtoken";
-import redis from "redis";
+import { createClient } from 'redis';
 import { promisify } from "util";
 
-const client = redis.createClient({
+const client = createClient({
   url: process.env.REDIS_URL,
 });
 
