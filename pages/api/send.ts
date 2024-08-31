@@ -5,32 +5,40 @@ import jsonwebtoken from "jsonwebtoken";
 import { createClient } from 'redis';
 import { promisify } from "util";
 
-const client = createClient({
-  url: process.env.REDIS_URL,
-});
 
 type Data = {
   ack: boolean;
   status: string;
 };
 
-export default function handler(
+export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>,
 ) {
+  const client = createClient({
+    url: process.env.REDIS_URL,
+    legacyMode: true,
+  });
+  await client.connect();
+
   //get token, message from the request
-    const { token, message } = req.body;
+  console.log(typeof req.body)
+    const { token, message } = JSON.parse(req.body);
     // verify the token
     const secret = process.env.JWT_SECRET;
     if (!secret) {
       throw new Error("JWT_SECRET is not set");
     }
+    console.log(token);
     const payload = jsonwebtoken.verify(token, secret);
     // store the message in redis
     //@ts-ignore
-    const setdata = client.json.ARRAPPEND('chat', JSON.stringify({ message, sender: payload.name }));
+    //as a list
+    const setdata = await client.set('chat', {message, sender: payload.name},);
+    console.log(setdata);
     // set the expiry time for the key
     //@ts-ignore
     // send the response
     res.status(200).json({ ack: true, status: "Message sent" });
 }
+// append('chat', JSON.stringify({ message, sender: payload.name }));
