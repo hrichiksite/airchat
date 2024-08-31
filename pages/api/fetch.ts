@@ -5,9 +5,7 @@ import jsonwebtoken from "jsonwebtoken";
 import { createClient } from 'redis';
 import { promisify } from "util";
 
-const client = createClient({
-  url: process.env.REDIS_URL,
-});
+
 
 type Data = [
     {
@@ -17,24 +15,25 @@ type Data = [
     },
     ];
 
+    const client = createClient({
+      url: process.env.REDIS_URL,
+    });
 
-export default function handler(
+
+export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>,
 ) {
+  await client.connect();
+
   // generate a random name for the user and send it as a response
 // get chat
 //remove the last message if length is greater than 30
 //@ts-ignore
-client.json.LEN('chat', (err, len) => {
-    if (len > 30) {
-        //@ts-ignore
-        client.json.ARRPOP('chat');
-    }
-    const messages = client.json.get('chat');
-    //@ts-ignore
-    res.status(200).json(messages);
-});
+//get the chat
+const getdata = await client.LRANGE('chat');
+//send the response
+res.status(200).json(getdata);
 }
 
 
