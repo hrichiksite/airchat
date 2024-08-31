@@ -28,10 +28,9 @@ export default function handler(
     const payload = jsonwebtoken.verify(token, secret);
     // store the message in redis
     //@ts-ignore
-    const setdata = client.set(payload.name, message);
+    const setdata = client.json.ARRAPPEND('chat', JSON.stringify({ message, sender: payload.name }));
     // set the expiry time for the key
     //@ts-ignore
-    const expire = client.expire(payload.name, 60*60*60*24);
     // send the response
     res.status(200).json({ ack: true, status: "Message sent" });
 }
