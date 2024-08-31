@@ -8,6 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 export default function Home() {
   // message array
   const [messages, setMessages] = useState([{}]);
+  const [message, setMessage] = useState("");
       //get chat
   useMemo(() => {
     fetch("/api/fetch")
@@ -68,8 +69,12 @@ export default function Home() {
   </div> 
   <footer className="bg-gradient-to-r from-green-400 to-yellow-400 p-4 border-t"> 
     <div className="flex"> 
-      <input type="text" className="flex-1 p-3 border border-pink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Type your message..." / > 
-      <button className="ml-2 bg-purple-600 text-white py-3 px-4 rounded-lg hover:bg-purple-700 transition duration-200">Send</button> 
+      <input value={message} onChange={(e)=> setMessage(e.target.value)} type="text" className="flex-1 p-3 border border-pink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Type your message..." / > 
+      <button className="ml-2 bg-purple-600 text-white py-3 px-4 rounded-lg hover:bg-purple-700 transition duration-200" 
+      onClick={(e)=>{
+        e.preventDefault();
+        sendMessage(message);
+      }}>Send</button> 
     </div> 
   </footer> 
 </div> 
