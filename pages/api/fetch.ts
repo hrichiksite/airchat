@@ -31,7 +31,14 @@ export default async function handler(
 //remove the last message if length is greater than 30
 //@ts-ignore
 //get the chat
-const getdata = await client.LRANGE('chat');
+const getdata = await client.get('chat');
+const jsondata = JSON.parse(getdata);
+if(jsondata.length > 30){
+  jsondata.shift();
+}
+//update the chat
+const setdata = await client.set('chat', JSON.stringify(jsondata));
+console.log(setdata);
 //send the response
 res.status(200).json(getdata);
 }
